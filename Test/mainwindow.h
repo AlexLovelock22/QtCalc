@@ -28,6 +28,7 @@ private:
 
     QString currentNumber;
     QStringList numbersAndOperators;
+    bool wasLastInputAnOperator = false;
 
 };
 

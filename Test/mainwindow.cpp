@@ -37,32 +37,58 @@ MainWindow::~MainWindow()
 void MainWindow::onButtonDigitClicked()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
-    if (button)
+
+
+    if (button) {
         ui->txtBox->insertPlainText(button->text()); // Append the number
+        wasLastInputAnOperator = false;
+    }
 
-    if (button)
+    if (button) {
         currentNumber = currentNumber+button->text();
-    qDebug() << currentNumber;
-
+        qDebug() << currentNumber;
+        wasLastInputAnOperator = false;
+    }
 
 
 
 
 }
 
+// Adding a new operator
 void MainWindow::onOperatorButtonClicked()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
-    if (button)
-        ui->txtBox->insertPlainText(" " + button->text() + " "); // Append the operator
+    if (!button) return;
 
-    if(button)
+    // If the last input was an operator, replace it with the new operator
+    if (wasLastInputAnOperator) {
+        if (!numbersAndOperators.isEmpty()) {
+            numbersAndOperators.removeLast(); // Remove the last operator
+        }
+        if (!currentNumber.isEmpty()) {
+            numbersAndOperators << currentNumber; // Add the current number if it's not empty
+        }
+        numbersAndOperators << button->text(); // Add the new operator
+        currentNumber.clear();
+    } else {
+        // If the last input was not an operator, simply append the current number and operator
         numbersAndOperators << currentNumber << button->text();
-    qDebug() << "Saved List : " << numbersAndOperators;
-    currentNumber = "";
+        currentNumber.clear();
+        wasLastInputAnOperator = true;
+    }
 
+    ui->txtBox->insertPlainText(" " + button->text() + " "); // Update the display
+    qDebug() << "Saved List : " << numbersAndOperators;
 }
 
 void MainWindow::onEqualsButtonClicked() {
-    qDebug() << numbersAndOperators;
+    if (!currentNumber.isEmpty()) {
+        numbersAndOperators << currentNumber; // Add the last number
+    }
+    qDebug() << "Final List : " << numbersAndOperators;
+
+    currentNumber.clear(); // Reset for the next calculation
+    numbersAndOperators.clear(); // Clear the list for the next calculation
+    ui->txtBox->clear();
 }
