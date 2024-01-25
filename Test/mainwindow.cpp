@@ -61,26 +61,40 @@ void MainWindow::onOperatorButtonClicked()
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if (!button) return;
 
+    QString newOperator = button->text();
+
     // If the last input was an operator, replace it with the new operator
     if (wasLastInputAnOperator) {
         if (!numbersAndOperators.isEmpty()) {
             numbersAndOperators.removeLast(); // Remove the last operator
         }
-        if (!currentNumber.isEmpty()) {
-            numbersAndOperators << currentNumber; // Add the current number if it's not empty
+        numbersAndOperators << newOperator; // Add the new operator
+
+        // Update the display: remove the last operator and add the new one
+        QString currentText = ui->txtBox->toPlainText();
+        int lastSpaceIndex = currentText.lastIndexOf(' ');
+        if (lastSpaceIndex != -1) {
+            currentText = currentText.left(lastSpaceIndex);
         }
-        numbersAndOperators << button->text(); // Add the new operator
-        currentNumber.clear();
+
+        ui->txtBox->setPlainText(currentText + " " + newOperator + " ");
     } else {
         // If the last input was not an operator, simply append the current number and operator
-        numbersAndOperators << currentNumber << button->text();
-        currentNumber.clear();
+        if (!currentNumber.isEmpty()) {
+            numbersAndOperators << currentNumber; // Add the current number if it's not empty
+            currentNumber.clear();
+        }
+        numbersAndOperators << newOperator;
         wasLastInputAnOperator = true;
+
+        // Update the display
+        ui->txtBox->insertPlainText(" " + newOperator);
     }
 
-    ui->txtBox->insertPlainText(" " + button->text() + " "); // Update the display
     qDebug() << "Saved List : " << numbersAndOperators;
 }
+
+
 
 void MainWindow::onEqualsButtonClicked() {
     if (!currentNumber.isEmpty()) {
